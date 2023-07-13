@@ -1,4 +1,5 @@
 const {formidable} = require('formidable')
+const usermodel = require("../Models/userModel");
 
 class UserController{
 
@@ -34,6 +35,36 @@ class UserController{
                         coordinates_Long
 
                     } = fields
+
+
+                    const pushUserData = new usermodel({
+
+                        userName:userNameDcrypt,
+                        userFullname:fullnameDycrypt,
+                        userEmail:userEmailDcrypt,
+                        userGender:userGenderDcrypt,
+
+                        userPhoneno:userphonenoDcrypt,
+                        userIpAddress:userIpAddressDcrypt,
+                        userDeviceName:userDeviceDcrypt,
+
+
+                        userCoordinates_lat:coordinate_lat_Dcrypt,
+                        userCoordinates_lon:coordinate_long_Dcrypt,
+
+                        userPassword:userPasswordDcrypt,
+                        userPayment:userpaymentDcrypt
+
+
+
+                    })
+
+                    const data = await pushUserData().save()
+
+
+
+
+
                 } else {
 
                     return res.status(400).json({msg: "400 Bad request"})
