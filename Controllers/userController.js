@@ -20,16 +20,18 @@ class UserController{
 
                 if (fields != null) {
                     const {
-                        username,
-                        userfullname,
-                        useremail,
-                        userpassword,
-                        usergender,
-                        userphoneno,
+                        userName,
+                        userFullname,
+                        userEmail,
+                        userPassword,
+                        userGender,
+                        userPhoneno,
                         userDeviceRegisteration,
                         userIpAddressRegisteration,
-                        userpayment,
-                        usercoordinates
+                        userPayment,
+                        userCoordinates,
+                        coordinates_Lat,
+                        coordinates_Long
 
                     } = fields
                 } else {
