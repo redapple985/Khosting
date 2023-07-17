@@ -86,6 +86,21 @@ const userschema = mongoose.Schema({
         required:true
     },
 
+
+    userPicturePath:{
+
+      type:String,
+      required:true
+    },
+
+
+
+    imageName:{
+
+        type:String,
+        required:true
+    },
+
     token:{
 
         type:String
@@ -95,5 +110,5 @@ const userschema = mongoose.Schema({
 
 })
 
-const userModel = mongoose.Schema("userModel",userschema)
+const userModel = mongoose.model("userModel",userschema)
 module.exports = userModel

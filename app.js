@@ -3,9 +3,19 @@ const app = new express()
 const httpserver = require('http').Server(app)
 const cluster = require('cluster')
 const numofcpu = require('os').cpus().length
+const userRoutes = require("./Routes/userRoutes")
+const helmet = require('helmet')
 
 //require mongodb cpnnection
 require('./DB/connection')
+
+//app settings
+app.set('port',process.env.port||5000)
+
+//Middlewares
+app.use("/baseapp/user",userRoutes)
+app.use(helmet())
+app.use(express.json())
 
 if (cluster.isPrimary){
 
