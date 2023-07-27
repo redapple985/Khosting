@@ -5,7 +5,8 @@ const aes256 = require("aes256")
 const usermodel = require("../Models/userModel")
 const {response} = require("express");
 const {sign} = require("jsonwebtoken");
-
+const path = require('path')
+require('dotenv').config()
 class UserController{
 
 
@@ -83,6 +84,13 @@ class UserController{
 
                     })
 
+                    const savedData =  pushUserData.save()
+
+                    if (savedData != null){
+
+                        return res.status(200).json({msg: "200 User created"})
+
+                    }
                     //for debugging
                     console.log(userName)
                     //const data = await pushUserData().save()
@@ -115,51 +123,48 @@ class UserController{
     }
 
 
-    Signin(req,res){
+     Signin(req,res){
 
         const form = new formidable.IncomingForm()
 
         try {
-            form.parse(req, (error, fields, files) => {
+            form.parse(req, async (error, fields, files) => {
 
                 if (fields != null) {
 
 
-                const {UserName, userEmail, userPassword, token,paYment} = fields
+                    const {UserName, userEmail, userPassword, token, paYment} = fields
                     //later use
                     // const cipher = aes256.createCipher(process.env.app_secrete)
                     // const emailDcrypt = cipher.decrypt(userEmail)
                     // const nameDcrypt = cipher.decrypt(UserName)
                     // const passwordDcrypt = cipher.decrypt(userPassword)
                     const isemailvalid = userEmail.includes("@")
-                    if (isemailvalid){
+                    if (isemailvalid) {
 
                         const findUser =
-                            usermodel.find({userEmail:userEmail})
+                            await usermodel.find({userEmail: userEmail})
 
-                        if (!findUser){
+                        if (!findUser) {
 
-                            return res.status(404).send({msg:"Not found"})
-                        }
-                        else{
+                            return res.status(404).send({msg: "Not found"})
+                        } else {
 
-                            const ispasswordcorrect = user.userPassword === userPassword
-                            if (!ispasswordcorrect){
+                            const ispasswordcorrect = findUser.userPassword === userPassword
+                            if (!ispasswordcorrect) {
 
-                                return res.status(404).send({msg:"Something went wrong"})
+                                return res.status(404).send({msg: "Something went wrong"})
 
-                            }
-                            else{
+                            } else {
 
 
-                                if(paYment === user.payment){
+                                if (paYment === findUser.payment) {
 
                                     console.log("Signin success")
-                                    return res.status(200).send({msg:"Signin success"})
-                                }
-                                else{
+                                    return res.status(200).send({msg: "Signin success"})
+                                } else {
 
-                                    return res.status(500).send({msg:"Something went wrong"})
+                                    return res.status(500).send({msg: "Something went wrong"})
                                 }
 
 
@@ -169,8 +174,7 @@ class UserController{
                     }
 
 
-            }
-                else{
+                } else {
 
                     return res.status(400).json({msg: "400 Bad request"})
                 }
@@ -215,14 +219,14 @@ class UserController{
                         }
                         else{
 
-                            response.status(200).send({
+                            res.status(200).send({
                                 msg:"Task successful"
                             })
                         }
 
                     })
 
-
+                // addImagepathToDB.save()
             }
             else{
 
@@ -253,16 +257,109 @@ class UserController{
 
             _id:userModel._id,
             userEmail:userModel.userEmail,
-            userName : userModel.userName
+            userName : userModel.userName,
+            payment:userModel.payment
         }
 
         const token = sign(token_payload,process.env.cookie_secret)
         //update token
-        return response.status(200).json({token,msg:"Sign in success",id:user._id,username:user.username})
+
+        userModel.findOneAndUpdate({_id:userModel.id},{$push:{tokens:token}},{new:true},(err,doc)=>{
+
+            if (err){
+
+                return response.status(404).send({msg:"Something went wrong"})
+            }
+            else{
+
+                console.log("sign in success")
+               // return response.status(200).json({token,msg:"Sign
+
+                // in success",id:user._id,username:user.username})
+                return response.status(200).json({token,msg:"Sign in success"})
+
+            }
+        })
+
+
 
     }
 
 
+    async UpdateUserProfilePic(req,res){
+
+        try {
+
+            const cipher = aes256.createCipher(process.env.app_secrete)
+            const updateimagePath = req.filename
+            const userName = req.userName
+            const userId = req.token.id
+
+            const imagePathDecrypted = cipher.decrypt(imagePath)
+            const userNameDecrypted = cipher.decrypt(userName)
+            const useridDecrypted = cipher.decrypt(userId)
+
+            const imageabsolutePath = path.join(__dirname,"profilepictures",updateimagePath)
+
+            console.log(imageabsolutePath)
+
+
+            if (updateimagePath != null){
+
+                fs.unlinkSync(imageabsolutePath)
+
+                const addImagepathToDB
+                    = usermodel.findByIdAndUpdate({_id:userId},{$set:{userPicturePath:imagePath,imageName:userName}},
+                    {new:true,strict:false},(err,doc)=>{
+
+                        if(err){
+
+                            res.status(500).send({
+                                msg:"Something went wrong"
+                            })
+
+                        }
+                        else{
+
+                            response.status(200).send({
+                                msg:"Task successful"
+                            })
+                        }
+
+                    })
+
+
+                addImagepathToDB.save()
+
+
+
+            }
+            else{
+
+
+                res.status(500).send({
+                    msg:"Something went wrong"
+                })
+            }
+
+
+
+        }
+        catch (error){
+
+            console.log(error)
+            return res.status(500).json({msg: "500 Something went wrong"})
+        }
+
+
+    }
+
+    async updateUserInfo(){
+
+
+        const filename = req.filename
+
+    }
 
 
 }

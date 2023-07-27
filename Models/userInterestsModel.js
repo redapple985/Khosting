@@ -8,6 +8,11 @@ const interestSchema = mongoose.Schema({
         required:true
     },
 
+    userId:{
+        type:String,
+        required:true
+    },
+
     payment:{
 
         type:String,

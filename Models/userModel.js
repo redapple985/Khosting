@@ -8,7 +8,7 @@ const userschema = mongoose.Schema({
         required:true
     },
 
-    fullName:{
+    userFullName:{
 
         type:String,
         required: true
@@ -35,6 +35,11 @@ const userschema = mongoose.Schema({
     },
 
 
+    userInterestsId:{
+
+        type:String,
+
+    },
 
     //technical details
 
@@ -56,6 +61,18 @@ const userschema = mongoose.Schema({
 
     },
 
+    userIpAddressUpdate:{
+
+        type:String,
+
+    },
+
+    userDeviceNameUpdate:{
+
+        type:String,
+
+    },
+
 
 
     //location
@@ -66,6 +83,18 @@ const userschema = mongoose.Schema({
     },
 
     userCoordinates_lon:{
+
+        type:String,
+
+    },
+
+    userUpdateCoordinates_lat:{
+
+        type:String
+
+    },
+
+    userUpdateCoordinates_lon:{
 
         type:String,
 
@@ -86,6 +115,13 @@ const userschema = mongoose.Schema({
         required:true
     },
 
+    userAppVersion:{
+
+        type:String,
+        required:true
+    },
+
+
 
     userPicturePath:{
 
@@ -101,9 +137,15 @@ const userschema = mongoose.Schema({
         required:true
     },
 
-    token:{
+    tokens:{
 
         type:String
+    },
+
+    userKey:{
+
+        type:String,
+        required:true
     }
 
 
