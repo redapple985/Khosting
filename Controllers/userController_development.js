@@ -524,17 +524,17 @@ class UserController{
         const form = new formidable.IncomingForm()
         try{
 
-            form.parse(req,async(error,fields,files)=>{
+            await form.parse(req, async (error, fields, files) => {
 
-                if (error){
+                if (error) {
 
-                    return res.status(400).send({msg:"Bad request"})
+                    return res.status(400).send({msg: "Bad request"})
 
                 }
 
-                if (fields != null){
+                if (fields != null) {
 
-                    const  {
+                    const {
                         userInterestedTopics,
                         userName,
                         payment
@@ -549,36 +549,31 @@ class UserController{
 
                     const pushInterests = interestModel({
 
-                        userName:userName,
-                        payment:payment,
-                        userId:userid,
-                        interests:userInterestedTopics
+                        userName: userName,
+                        payment: payment,
+                        userId: userid,
+                        interests: userInterestedTopics
                     })
 
-                   await pushInterests.save()
+                    await pushInterests.save()
 
-                    if (pushInterests){
+                    if (pushInterests) {
 
                         const userInterestId = pushInterests._id
 
-                        usermodel.findOneAndUpdate({_id:userid},{$set:{userInterestsId:userInterestId}},({new:true}))
-                            .then(result=>{
+                        usermodel.findOneAndUpdate({_id: userid}, {$set: {userInterestsId: userInterestId}}, ({new: true}))
+                            .then(result => {
 
-                                return res.status(200).send({msg:"Interests added"})
+                                return res.status(200).send({msg: "Interests added"})
                             })
-                            .catch((error)=>{
+                            .catch((error) => {
 
                                 console.log(error)
-                                return res.status(500).send({msg:"500 Something went wrong"})
+                                return res.status(500).send({msg: "500 Something went wrong"})
                             })
-
 
 
                     }
-
-                }
-                else{
-
 
                 }
 
@@ -596,12 +591,21 @@ class UserController{
     async getUserinterests(req,res){
 
         const id = req.token._id
-        const userData =await  usermodel.findOne({_id:id})
-        const interestid = userData.userInterestsId
-        const getinterests = interestModel.findOne({_id:interestid})
-        console.log(getinterests)
+        await  usermodel.findOne({_id:id})
+            .then(async resutl=>{
+                const interestid = resutl.userInterestsId
+                const getinterests =await interestModel.findOne({_id:interestid})
+                console.log(getinterests.interests)
+                res.status(200).send({interests:getinterests.interests})
 
+            }).catch((error)=>{
+
+                res.status(500).send({msg:"Something went wrong"})
+                console.log(error)
+            });
     }
+
+
 
 }
 

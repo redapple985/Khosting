@@ -62,6 +62,12 @@ router.post("/addUserInterests",authMiddleware,(req,res)=>{
 })
 
 
+router.get("/getuserInterest",authMiddleware,(req,res)=>{
+
+    controllerobject.getUserinterests(req,res)
+})
+
+
 
 
 module.exports = router
