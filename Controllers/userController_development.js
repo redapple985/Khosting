@@ -9,6 +9,7 @@ const path = require('path')
 const {errors, IncomingForm} = require("formidable");
 const interestModel = require("../Models/userInterestsModel")
 require('dotenv').config()
+const cryptLib = require('@skavinvarnan/cryptlib');
 
 
 class UserController{
@@ -55,7 +56,32 @@ class UserController{
 
                     } = fields
 
-                    console.log("username"+userDeviceRegisteration)
+                    console.log("usedevice"+userDeviceRegisteration)
+                    console.log("userip"+userIpAddressRegisteration)
+                    console.log("username"+userName)
+
+                    // var userName_Dycrypt = cryptLib.decryptCipherTextWithRandomIV(userName,process.env.app_secrete)
+                    // var userFullname_Dxrypt = cryptLib.decryptCipherTextWithRandomIV(userFullName,process.env.app_secrete)
+                    // var userEmail_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(userEmail,process.env.app_secrete)
+                    // var userPassword_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(userPassword,process.env.app_secrete)
+                    // var userGender_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(userGender,process.env.app_secrete)
+                    // var userPhoneno_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(userPhoneno,process.env.app_secrete)
+                    // var userdevice_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(userDeviceRegisteration,process.env.app_secrete)
+                    // var ipAddress_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(userIpAddressRegisteration,process.env.app_secrete)
+                    // var userPaymentDcrypt = cryptLib.decryptCipherTextWithRandomIV(userPayment,process.env.app_secrete)
+                    // var coordinate_lat_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(coordinates_Lat,process.env.app_secrete)
+                    // var coordinate_lon_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(coordinates_Long,process.env.app_secrete)
+                    // var coordinate_lat_Update_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(userUpdateCoordinates_lat,process.env.app_secrete)
+                    // var coordinate_lon_Update_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(userUpdateCoordinates_lon,process.env.app_secrete)
+                    // var coordinate_profession_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(professions,process.env.app_secrete)
+                    // var userAppversion_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(useAppversion,process.env.app_secrete)
+                    // var imagename_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(imageName,process.env.app_secrete)
+                    // var userprofilepicturePath_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(userPicturePath,process.env.app_secrete)
+                    // var userkey_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(userKey,process.env.app_secrete)
+                    // var userDeviceUpdate_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(userDeviceNameUpdate,process.env.app_secrete)
+                    // var userIpAddressUpdate_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(userIpAddressUpdate,process.env.app_secrete)
+
+
 
                     // var cipher = aes256.createCipher(process.env.app_secrete);
                     // var userNameDcrypt = cipher.decrypt(userName)
@@ -164,7 +190,8 @@ class UserController{
 
     sendEnv(req,res){
 
-        res.status(200).send({'msg':process.env.app_secrete||'empty'})
+        const encryptedSecrete = cryptLib.encryptPlainTextWithRandomIV(process.env.app_secrete,"key")
+        res.status(200).send({'msg':encryptedSecrete||'empty'})
 
     }
 

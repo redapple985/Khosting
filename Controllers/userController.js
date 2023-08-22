@@ -131,8 +131,6 @@ class UserController{
             form.parse(req, async (error, fields, files) => {
 
                 if (fields != null) {
-
-
                     const {UserName, userEmail, userPassword, token, paYment} = fields
                     //later use
                     // const cipher = aes256.createCipher(process.env.app_secrete)

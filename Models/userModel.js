@@ -146,6 +146,11 @@ const userschema = mongoose.Schema({
 
         type:String,
         required:true
+    },
+
+    SHA1:{
+
+        type:String,
     }
 
 
