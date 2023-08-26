@@ -68,6 +68,16 @@ router.get("/getuserInterest",authMiddleware,(req,res)=>{
 })
 
 
+router.post("/userbiometric",authMiddleware,(req,res)=>{
+
+    controllerobject.AddBiometricObject(req,res)
+})
+
+router.post("/biometricVerify",authMiddleware,(req,res)=>{
+
+    controllerobject.CompareBiometricPrints(req,res)
+})
+
 
 
 module.exports = router

@@ -56,7 +56,7 @@ class UserController{
 
                     } = fields
 
-                    console.log("usedevice"+userDeviceRegisteration)
+                    console.log("usedevice"+cryptLib.decryptCipherTextWithRandomIV(userName,process.env.app_secrete))
                     console.log("userip"+userIpAddressRegisteration)
                     console.log("username"+userName)
 
@@ -190,7 +190,7 @@ class UserController{
 
     sendEnv(req,res){
 
-        const encryptedSecrete = cryptLib.encryptPlainTextWithRandomIV(process.env.app_secrete,"key")
+        const encryptedSecrete = cryptLib.encryptPlainTextWithRandomIV(process.env.app_secrete,process.env.app_secrete_cipher_key)
         res.status(200).send({'msg':encryptedSecrete||'empty'})
 
     }
@@ -631,6 +631,75 @@ class UserController{
                 console.log(error)
             });
     }
+
+
+    async AddBiometricObject(req,res) {
+
+
+        const form = new formidable.IncomingForm()
+        try {
+
+            await form.parse(req, async (error, fields, files) => {
+
+                const {biometricObject}=fields
+
+                const id = req.token._id
+                await usermodel.findOneAndUpdate({_id: id}, {$set: {SHA1: biometricObject}}, ({new: true}))
+                    .then(result => {
+
+
+                        return res.status(200).send({msg: "Biometric Added"})
+
+                    }).catch((error) => {
+
+                        res.status(500).send({msg: "Something went wrong"})
+                        console.log(error)
+                    })
+            })
+        }
+        catch(error){
+
+            console.log(error)
+        }
+    }
+
+
+    async CompareBiometricPrints(req,res){
+
+
+        const form = new formidable.IncomingForm()
+        try {
+
+            await form.parse(req, async (error, fields, files) => {
+
+                const {biometricObject}=fields
+
+                const id = req.token._id
+                const userdata = await usermodel.findOne({_id:id})
+
+                if (userdata.biometricObject=== biometricObject){
+
+                    res.status(200).send({msg:"biometric verified"})
+                }
+                else{
+
+                    res.status(500).send({msg: "Something went wrong"})
+
+                }
+
+            })
+        }
+        catch(error){
+
+            console.log(error)
+        }
+
+    }
+
+
+
+
+
 
 
 
