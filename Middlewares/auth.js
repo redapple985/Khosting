@@ -4,9 +4,11 @@ const { request } = require('express')
 
 const auth = (req,res,next)=>{
 
-    const toekn = req.headers.authorization.split(' ')[1]
+    const token = req.headers.authorization.split(' ')[1]
 
-    jwt.verify(toekn,process.env.app_secrete,(err,decode)=>{
+    console.log(token)
+
+    jwt.verify(token,process.env.app_secrete,(err,decode)=>{
 
 
         if (err){

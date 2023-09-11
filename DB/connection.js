@@ -1,7 +1,9 @@
 const mongoose = require('mongoose')
 
-const url = 'mongodb://127.0.0.1:27017/KizilElmaTest'
-mongoose.connect(url,{
+const url = process.env.DEVMODE_LOCAL
+
+const enviromentTesturl = process.env.DEVMODE_REMOTE
+mongoose.connect(enviromentTesturl,{
 
     useNewUrlParser : true,
     useUnifiedTopology:true,
@@ -9,6 +11,7 @@ mongoose.connect(url,{
 }).then(()=>{
 
     console.log('connection with database success'+process.pid)
+    console.log(process.env.DEVMODE_REMOTE)
 })
     .catch((error)=>{
 

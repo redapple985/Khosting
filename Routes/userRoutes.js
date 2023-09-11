@@ -68,15 +68,28 @@ router.get("/getuserInterest",authMiddleware,(req,res)=>{
 })
 
 
-router.post("/userbiometric",authMiddleware,(req,res)=>{
+router.get("/interestOptions",(req,res)=>{
 
-    controllerobject.AddBiometricObject(req,res)
+    controllerobject.getInterestsOption(req,res)
 })
 
-router.post("/biometricVerify",authMiddleware,(req,res)=>{
+router.post("/addinterestOptions",(req,res)=>{
 
-    controllerobject.CompareBiometricPrints(req,res)
+    controllerobject.addInterestsOption(req,res)
 })
+
+
+
+
+// router.post("/userbiometric",(req,res)=>{
+//
+//     controllerobject.AddBiometricObject(req,res)
+// })
+//
+// router.post("/biometricVerify",(req,res)=>{
+//
+//     controllerobject.CompareBiometricPrints(req,res)
+// })
 
 
 

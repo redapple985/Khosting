@@ -148,6 +148,13 @@ const userschema = mongoose.Schema({
         required:true
     },
 
+    specials:{
+
+        type:String,
+        default:""
+
+    },
+
     SHA1:{
 
         type:String,

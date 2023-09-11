@@ -2,7 +2,7 @@ const formidable = require('formidable')
 
 require('dotenv').config()
 const aes256 = require("aes256")
-const usermodel = require("../Models/userModel")
+const usermodel= require("../Models/userModel")
 const {response} = require("express");
 const {sign} = require("jsonwebtoken");
 const path = require('path')
@@ -10,6 +10,7 @@ const {errors, IncomingForm} = require("formidable");
 const interestModel = require("../Models/userInterestsModel")
 require('dotenv').config()
 const cryptLib = require('@skavinvarnan/cryptlib');
+const interestOptionsmodel = require("../Models/InterestOptionsModel")
 
 
 class UserController{
@@ -26,7 +27,7 @@ class UserController{
                 if (error) {
 
                     console.log(error)
-                    return res.status(500).json({msg: "500 Internal Server Error"})
+                    return res.status(500).json({msg: "500 Internal Server Error",error:"true"})
 
                 }
 
@@ -60,42 +61,6 @@ class UserController{
                     console.log("userip"+userIpAddressRegisteration)
                     console.log("username"+userName)
 
-                    // var userName_Dycrypt = cryptLib.decryptCipherTextWithRandomIV(userName,process.env.app_secrete)
-                    // var userFullname_Dxrypt = cryptLib.decryptCipherTextWithRandomIV(userFullName,process.env.app_secrete)
-                    // var userEmail_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(userEmail,process.env.app_secrete)
-                    // var userPassword_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(userPassword,process.env.app_secrete)
-                    // var userGender_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(userGender,process.env.app_secrete)
-                    // var userPhoneno_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(userPhoneno,process.env.app_secrete)
-                    // var userdevice_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(userDeviceRegisteration,process.env.app_secrete)
-                    // var ipAddress_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(userIpAddressRegisteration,process.env.app_secrete)
-                    // var userPaymentDcrypt = cryptLib.decryptCipherTextWithRandomIV(userPayment,process.env.app_secrete)
-                    // var coordinate_lat_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(coordinates_Lat,process.env.app_secrete)
-                    // var coordinate_lon_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(coordinates_Long,process.env.app_secrete)
-                    // var coordinate_lat_Update_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(userUpdateCoordinates_lat,process.env.app_secrete)
-                    // var coordinate_lon_Update_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(userUpdateCoordinates_lon,process.env.app_secrete)
-                    // var coordinate_profession_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(professions,process.env.app_secrete)
-                    // var userAppversion_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(useAppversion,process.env.app_secrete)
-                    // var imagename_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(imageName,process.env.app_secrete)
-                    // var userprofilepicturePath_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(userPicturePath,process.env.app_secrete)
-                    // var userkey_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(userKey,process.env.app_secrete)
-                    // var userDeviceUpdate_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(userDeviceNameUpdate,process.env.app_secrete)
-                    // var userIpAddressUpdate_Dcrypt = cryptLib.decryptCipherTextWithRandomIV(userIpAddressUpdate,process.env.app_secrete)
-
-
-
-                    // var cipher = aes256.createCipher(process.env.app_secrete);
-                    // var userNameDcrypt = cipher.decrypt(userName)
-                    // var fullnameDycrypt = cipher.decrypt(userFullname)
-                    // var userEmailDcrypt = cipher.decrypt(userEmail)
-                    // var userPasswordDcrypt = cipher.decrypt(userPassword)
-                    // var userGenderDcrypt = cipher.decrypt(userGender)
-                    // var userphonenoDcrypt = cipher.decrypt(userPhoneno)
-                    // var userDeviceDcrypt = cipher.decrypt(userDeviceRegisteration)
-                    // var userIpAddressDcrypt = cipher.decrypt(userIpAddressRegisteration)
-                    // var userpaymentDcrypt = cipher.decrypt(userPayment)
-                    // var coordinate_lat_Dcrypt = cipher.decrypt(coordinates_Lat)
-                    // var coordinate_long_Dcrypt = cipher.decrypt(coordinates_Long)
-                    // var profession_dcrypt = cipher.decrypt(professions)
 
 
 
@@ -138,14 +103,41 @@ class UserController{
                                 const cipher = aes256.createCipher(process.env.app_secrete)
                                 const userkey = cipher.encrypt(userKeymeta,process.env.app_secrete)
 
-                                    usermodel.findOneAndUpdate({_id:result.id},{$set:{userKey:userkey}},({new:true}))
-                                    .then((result2=>{
+                                    usermodel.findOneAndUpdate({_id:result.id},{$set:{userKey:userkey}},({new:"true"}))
+                                    .then((async result2 => {
 
-                                        return res.status(200).json({msg: "200 User created"})
+
+                                       // const decryptedEmail = cryptLib.decryptCipherTextWithRandomIV(result.userEmail, process.env.app_secrete)
+                                        const token_payload = {
+
+                                            _id: result._id,
+                                            UserEmail: userEmail,
+                                            UserName: userName,
+                                            Payment: userPayment,
+                                            msg: "success"
+
+                                        }
+
+                                        const token = await sign(token_payload, process.env.app_secrete)
+
+                                        const encryptkey = cryptLib.encryptPlainTextWithRandomIV(userKey,process.env.app_secrete)
+
+                                        return res.status(200).json({msg: "200 User created",
+                                            error: "false",
+                                            t: token,
+                                            userKey:encryptkey,
+                                            userName:result.userName,
+                                            userEmail: result.userEmail,
+                                            userId:result._id,
+                                            userPaymentInfo:result.userPayment})
+
                                     }))
                                     .catch((err)=>{
 
-                                        return res.status(500).json({msg: "Something went wrong"})
+                                        console.log(err)
+                                        console.log("err")
+                                        return res.status(200).json({msg: "Something went wrong",error:"true"})
+
                                     })
 
 
@@ -154,15 +146,11 @@ class UserController{
                         }).catch((error)=>{
 
                             console.log(error)
-                            return res.status(500).json({msg: "Something went wrong"})
+                            return res.status(500).json({msg: "Something went wrong",error:"true"})
 
                         })
 
-                    if (savedData != null){
 
-
-
-                    }
                     //for debugging
                     console.log(userName)
                     //const data = await pushUserData().save()
@@ -172,7 +160,7 @@ class UserController{
 
                 } else {
 
-                    return res.status(400).json({msg: "400 Bad request"})
+                    return res.status(200).json({msg: "Bad request",error:"true"})
 
                 }
 
@@ -182,7 +170,7 @@ class UserController{
         catch (error){
 
             console.log(error)
-            return res.status(500).json({msg: "500 Something went wrong"})
+            return res.status(200).json({msg: "Something went wrong",error:"true"})
         }
 
     }
@@ -191,7 +179,7 @@ class UserController{
     sendEnv(req,res){
 
         const encryptedSecrete = cryptLib.encryptPlainTextWithRandomIV(process.env.app_secrete,process.env.app_secrete_cipher_key)
-        res.status(200).send({'msg':encryptedSecrete||'empty'})
+        res.status(200).send({msg:encryptedSecrete||'empty',error:"false"})
 
     }
 
@@ -207,43 +195,52 @@ class UserController{
 
 
                     const {userEmail,userPassword,paYment} = fields
-                    //later use
-                    // const cipher = aes256.createCipher(process.env.app_secrete)
-                    // const emailDcrypt = cipher.decrypt(userEmail)
-                    // const nameDcrypt = cipher.decrypt(UserName)
-                    // const passwordDcrypt = cipher.decrypt(userPassword)
-                    const isemailvalid = userEmail.includes("@")
+
+                    const decryptedEmail = await cryptLib.decryptCipherTextWithRandomIV(userEmail,process.env.app_secrete)
+                    const decryptPassword = await  cryptLib.decryptCipherTextWithRandomIV(userPassword,process.env.app_secrete)
+                    const decryptPayment = await  cryptLib.decryptCipherTextWithRandomIV(paYment,process.env.app_secrete)
+
+
+                    console.log(decryptedEmail)
+                    const isemailvalid = decryptedEmail.includes("@")
                     if (isemailvalid){
 
+
+
                         const findUser =
-                           await usermodel.findOne({userEmail:userEmail})
+                           await usermodel.findOne({userEmail:decryptedEmail})
                         console.log(isemailvalid)
 
                         if (!findUser){
 
-                            return res.status(404).send({msg:"Not found"})
+                            return res.status(200).json({msg:"User Not found",error:"true"})
                         }
                         else{
 
-                            var ispasswordcorrect = await findUser.userPassword === userPassword
+
+                            console.log("else")
+
+                            const userPasswordfromDb =await cryptLib.decryptCipherTextWithRandomIV(findUser.userPassword,process.env.app_secrete)
+                            var ispasswordcorrect= decryptPassword === userPasswordfromDb
                             if (!ispasswordcorrect){
 
                                 console.log(userPassword)
                                 console.log(findUser.userPassword)
-                                return res.status(404).send({msg:"404 Something went wrong"})
+                                return res.status(200).json({msg: "Authentication Error",error:"true"})
 
                             }
                             else{
 
 
-                                if(paYment === findUser.userPayment){
+                                const decrypteduserPayment = cryptLib.decryptCipherTextWithRandomIV(findUser.userPayment,process.env.app_secrete)
+                                if(decryptPayment === decrypteduserPayment){
 
                                     console.log("matching payment"+findUser.userPayment);
-                                    await this.UpdateSiginToken(findUser,req,res)
+                                    await this.UpdateSiginToken(findUser,decryptedEmail,req,res)
                                 }
                                 else{
 
-                                    return res.status(500).send({msg:"Something went wrong"})
+                                    return res.status(200).json({msg:"Authentication Error",error:"true"})
                                 }
 
 
@@ -256,13 +253,13 @@ class UserController{
                 }
                 else{
 
-                    return res.status(400).json({msg: "400 Bad request"})
+                    return res.status(400).json({msg: "400 Bad request",error:"true"})
                 }
             })
         }catch(error){
 
             console.log(error)
-            return res.status(500).json({msg: "500 Something went wrong"})
+            return res.status(500).json({msg: "500 Something went wrong",error:"true"})
 
         }
 
@@ -293,7 +290,8 @@ class UserController{
 
 
                             res.status(200).send({
-                                msg:"Task successful"
+                                msg:"Task successful",
+                                error:"false"
                             })
 
 
@@ -303,7 +301,8 @@ class UserController{
                         if(error){
 
                             res.status(500).send({
-                                msg:"Something went wrong"
+                                msg:"Something went wrong",
+                                error:"true"
                             })
 
                         }
@@ -318,6 +317,7 @@ class UserController{
 
                 res.status(500).send({
                     msg:"Something went wrong"
+                    ,error:"true"
                 })
             }
 
@@ -327,7 +327,7 @@ class UserController{
         catch (error){
 
             console.log(error)
-            return res.status(500).json({msg: "500 Something went wrong"})
+            return res.status(500).json({msg: "500 Something went wrong",error:"true"})
         }
 
 
@@ -335,15 +335,19 @@ class UserController{
     }
 
 
-    async UpdateSiginToken(foundUser,req,res){
+    async UpdateSiginToken(foundUser,email,req,res){
+
+
+
 
 
         const token_payload = {
 
             _id:foundUser._id,
-            userEmail:foundUser.userEmail,
-            userName : foundUser.userName,
-            payment:foundUser.payment
+            UserEmail:email,
+            UserName : foundUser.userName,
+            Payment:foundUser.payment,
+            msg:"success"
         }
 
         const token = await sign(token_payload,process.env.app_secrete)
@@ -353,12 +357,17 @@ class UserController{
          then(result=>{
 
 
-             console.log("sign in success")
-             // return response.status(200).json({token,msg:"Sign
-
-             // in success",id:user._id,username:user.username})
              console.log("Signin success")
-             return res.status(200).send({msg:"Signin success",t:token,UserKey:result.userKey})
+
+             const encryptedUserkey = cryptLib.encryptPlainTextWithRandomIV(result.userKey,process.env.app_secrete)
+
+             return res.status(200).json({msg:"Signin success",t:token,
+                 userKey:encryptedUserkey,
+                 error:"false",
+                 userName:result.userName,
+                 userEmail: result.userEmail,
+                 userId:result._id,
+                 userPaymentInfo:result.userPayment})
 
 
 
@@ -368,7 +377,7 @@ class UserController{
 
 
                 console.log(error)
-                return res.status(500).send({msg:"Something went wrong"})
+                return res.status(200).send({msg:"Something went wrong",error:"true"})
 
         })
 
@@ -405,15 +414,15 @@ class UserController{
 
                         if(err){
 
-                            res.status(500).send({
-                                msg:"Something went wrong"
+                            res.status(200).send({
+                                msg:"Something went wrong",error:"true"
                             })
 
                         }
                         else{
 
                             response.status(200).send({
-                                msg:"Task successful"
+                                msg:"Task successful",error:"false"
                             })
                         }
 
@@ -428,8 +437,9 @@ class UserController{
             else{
 
 
-                res.status(500).send({
-                    msg:"Something went wrong"
+                res.status(200).send({
+                    msg:"Something went wrong",
+                    error:"true"
                 })
             }
 
@@ -439,7 +449,7 @@ class UserController{
         catch (error){
 
             console.log(error)
-            return res.status(500).json({msg: "500 Something went wrong"})
+            return res.status(500).json({msg: "500 Something went wrong",error:"true"})
         }
 
 
@@ -472,7 +482,7 @@ class UserController{
 
                 if (error) {
 
-                    res.status(404).send({msg: "Not found"})
+                    res.status(200).send({msg: "Not found",error:"true"})
 
                 }
 
@@ -516,7 +526,7 @@ class UserController{
                             .then(result => result => {
 
                                 console.log("fullfilled")
-                               return  res.status(200).send({msg: "User Profile data Updated"})
+                               return  res.status(200).send({msg: "User Profile data Updated",error:"false"})
 
 
 
@@ -524,13 +534,13 @@ class UserController{
                             .catch((error) => {
 
                                 console.log(error)
-                               return  res.status(500).send({msg: "500 Something went wrong"})
+                               return  res.status(200).send({msg: "500 Something went wrong",error:"true"})
 
                             })
 
                     } else {
 
-                        return res.status(400).send({msg: "400 Bad Request"})
+                        return res.status(200).send({msg: "400 Bad Request",error:"true"})
 
                     }
 
@@ -540,7 +550,7 @@ class UserController{
         }
         catch (error) {
 
-            return res.status(500).send({msg: "500 Something went wrong"})
+            return res.status(500).send({msg: "500 Something went wrong",error:"true"})
         }
 
     }
@@ -551,27 +561,30 @@ class UserController{
         const form = new formidable.IncomingForm()
         try{
 
+            console.log("run")
             await form.parse(req, async (error, fields, files) => {
 
                 if (error) {
 
-                    return res.status(400).send({msg: "Bad request"})
+                    return res.status(200).send({msg: "Bad request",error:"true"})
 
                 }
 
                 if (fields != null) {
 
                     const {
-                        userInterestedTopics,
                         userName,
-                        payment
+                        payment,
+                        userInterests
 
                     } = fields
+
+
 
                     const userid = req.token._id
 
                     console.log(userid)
-                    console.log(userInterestedTopics)
+                    console.log(userInterests)
 
 
                     const pushInterests = interestModel({
@@ -579,7 +592,7 @@ class UserController{
                         userName: userName,
                         payment: payment,
                         userId: userid,
-                        interests: userInterestedTopics
+                        interests:  userInterests
                     })
 
                     await pushInterests.save()
@@ -591,12 +604,12 @@ class UserController{
                         usermodel.findOneAndUpdate({_id: userid}, {$set: {userInterestsId: userInterestId}}, ({new: true}))
                             .then(result => {
 
-                                return res.status(200).send({msg: "Interests added"})
+                                return res.status(200).send({msg: "Interests added",error:"false"})
                             })
                             .catch((error) => {
 
                                 console.log(error)
-                                return res.status(500).send({msg: "500 Something went wrong"})
+                                return res.status(200).send({msg: "500 Something went wrong",error:"true"})
                             })
 
 
@@ -627,7 +640,7 @@ class UserController{
 
             }).catch((error)=>{
 
-                res.status(500).send({msg:"Something went wrong"})
+                res.status(200).send({msg:"Something went wrong",error:"true"})
                 console.log(error)
             });
     }
@@ -643,16 +656,16 @@ class UserController{
 
                 const {biometricObject}=fields
 
-                const id = req.token._id
+                const id = "64eb2b804bd2c5240369e70a"
                 await usermodel.findOneAndUpdate({_id: id}, {$set: {SHA1: biometricObject}}, ({new: true}))
                     .then(result => {
 
 
-                        return res.status(200).send({msg: "Biometric Added"})
+                        return res.status(200).send({msg: "Biometric Added",error:"false"})
 
                     }).catch((error) => {
 
-                        res.status(500).send({msg: "Something went wrong"})
+                        res.status(500).send({msg: "Something went wrong",error:"true"})
                         console.log(error)
                     })
             })
@@ -674,16 +687,19 @@ class UserController{
 
                 const {biometricObject}=fields
 
+               const  decryptedBiometricObject =
+                   cryptLib.decryptCipherTextWithRandomIV(biometricObject,process.env.app_secrete)
+
                 const id = req.token._id
                 const userdata = await usermodel.findOne({_id:id})
 
                 if (userdata.biometricObject=== biometricObject){
 
-                    res.status(200).send({msg:"biometric verified"})
+                    res.status(200).send({msg:"biometric verified",error:"false"})
                 }
                 else{
 
-                    res.status(500).send({msg: "Something went wrong"})
+                    res.status(500).send({msg: "Something went wrong",error:"true"})
 
                 }
 
@@ -699,6 +715,79 @@ class UserController{
 
 
 
+     async getInterestsOption(req,res){
+
+         //
+         // await  usermodel.findOne()
+         //    .then((result)=>{
+         //
+         //
+         //        res.send({error:"false",interestsOptions:result})
+         //
+         //    })
+         //    .catch((error)=>{
+         //
+         //        res.send({error:"true",interestsOptions:"null"})
+         //        console.log(error)
+         //    })
+
+        // const enKey = cryptLib.encryptPlainTextWithRandomIV("interests",process.env.app_secrete)
+
+        // const interestOptionsdata = await interestOptionsmodel.find({key:enKey})
+       //  const interestarray = await interestOptionsmodel.find({}).select('interestsOptions -_id')
+        // console.log(interestOptionsdata)
+
+         //const finalArray = interestarray.substring(1, interestarray.length-1);
+
+         var interests= [{interest:"Sports"},{interest:"Science"},{interest:"Programming"},{interest:"Cars"},
+             {interest:"Plane"},{interest:"Politics"}]
+
+
+
+         res.status(200).send({error:"false",interestsOptions:interests})
+
+    }
+
+
+    async addInterestsOption(req,res){
+
+
+        const form = new formidable.IncomingForm()
+        try {
+
+            await form.parse(req, async (error, fields, files) => {
+
+
+                const {interestsOptions} = fields
+
+                if (error){
+
+                    return res.status(200).json({msg:"There was some error",error:"true"})
+                }
+
+                const enKey = cryptLib.encryptPlainTextWithRandomIV("interests",process.env.app_secrete)
+
+                console.log(interestsOptions)
+               const savedInterestOptions =await interestOptionsmodel.create({interestsOptions: interestsOptions,key:enKey})
+
+                if (savedInterestOptions != null){
+
+                    return res.status(200).json({msg:"InterestsOptionsSaved",error:"false"})
+                }
+
+
+            })
+
+        }
+        catch (err){
+
+
+            console.log(err)
+            return res.status(200).json({msg:"Failed to insert Interests Options",error:"true"})
+
+        }
+
+    }
 
 
 
