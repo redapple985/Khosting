@@ -3,22 +3,49 @@ const app = new express()
 const httpserver = require('http').Server(app)
 const cluster = require('cluster')
 const numofcpu = require('os').cpus().length
+const userRoutes =require("./Routes/userRoutes")
+const helmet = require('helmet')
+require('dotenv').config()
+app.use(express.static(__dirname));
 
 //require mongodb cpnnection
 require('./DB/connection')
 
-if (cluster.isPrimary){
+//app settings
+app.set('port',process.env.port||5000)
 
-    for (let i=0;i<numofcpu;i++){
+//Middlewares
+app.use("/baseapp/user",userRoutes)
+app.use(helmet())
+app.use(express.json())
 
-        cluster.fork()
-    }
+
+
+if (process.env.isdevelopment==='development') {
+
+    httpserver.listen(app.get('port'), () => {
+
+        console.log(`server listening at port ${app.get('port')} with process id` + process.pid+"in development mode")
+    })
+
+
+
 }
 else{
 
+    if (cluster.isPrimary) {
 
-    httpserver.listen(app.get('port'),()=>{
+        for (let i = 0; i < numofcpu; i++) {
 
-        console.log(`server listening at port ${app.get('port')}`)
-    })
+            cluster.fork()
+        }
+    } else {
+
+
+        httpserver.listen(app.get('port'), () => {
+
+            console.log(`server listening at port ${app.get('port')} with process id` + process.pid)
+        })
+    }
+
 }
