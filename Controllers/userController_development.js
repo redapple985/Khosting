@@ -121,6 +121,7 @@ class UserController{
                                         const token = await sign(token_payload, process.env.app_secrete)
 
                                         const encryptkey = cryptLib.encryptPlainTextWithRandomIV(userKey,process.env.app_secrete)
+                                        const encryptId = cryptLib.encryptPlainTextWithRandomIV(result._id,process.env.app_secrete)
 
                                         return res.status(200).json({msg: "200 User created",
                                             error: "false",
@@ -128,7 +129,7 @@ class UserController{
                                             userKey:encryptkey,
                                             userName:result.userName,
                                             userEmail: result.userEmail,
-                                            userId:result._id,
+                                            userId:encryptId,
                                             userPaymentInfo:result.userPayment})
 
                                     }))
@@ -360,13 +361,14 @@ class UserController{
              console.log("Signin success")
 
              const encryptedUserkey = cryptLib.encryptPlainTextWithRandomIV(result.userKey,process.env.app_secrete)
+             const encrypteduserId = cryptLib.encryptPlainTextWithRandomIV(result._id,process.env.app_secrete)
 
              return res.status(200).json({msg:"Signin success",t:token,
                  userKey:encryptedUserkey,
                  error:"false",
                  userName:result.userName,
                  userEmail: result.userEmail,
-                 userId:result._id,
+                 userId:encrypteduserId,
                  userPaymentInfo:result.userPayment})
 
 
