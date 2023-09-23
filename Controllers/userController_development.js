@@ -52,7 +52,9 @@ class UserController{
                         userUpdateCoordinates_lon,
                         imageName,
                         userPicturePath,
-                        userKey
+                        userKey,
+                        userReputation,
+                        userReputationStatus
 
 
                     } = fields
@@ -85,7 +87,9 @@ class UserController{
                         userPassword:userPassword,
                         userPayment:userPayment,
                         userAppVersion:userAppVersion,
-                        userKey:userKey
+                        userKey:userKey,
+                        userReputation:userReputation,
+                        userReputationStatus:userReputationStatus
 
 
 

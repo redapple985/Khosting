@@ -155,6 +155,18 @@ const userschema = mongoose.Schema({
 
     },
 
+    userReputation:{
+
+        type:Number,
+        default:0
+    },
+
+    userReputationStatus:{
+
+        type:String,
+        default:""
+    },
+
     SHA1:{
 
         type:String,
