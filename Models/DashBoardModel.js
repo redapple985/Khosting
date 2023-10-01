@@ -1,87 +1,69 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 const dashboardSchema = mongoose.Schema({
+  userId: {
+    type: String,
+  },
 
+  userProfilepath: {
+    type: String,
+  },
 
-    userId:{
+  userName: {
+    type: String,
+  },
 
-        type:String,
-        default:""
-    },
+  title: {
+    type: String,
+  },
 
-    userName:{
-        type:String,
-        default: ""
-    },
+  subtext: {
+    type: String,
+  },
 
-    title:{
+  timeStamp: {
+    type: String,
+  },
 
-        type:String,
-        default:""
-    },
+  description: {
+    type: String,
+  },
 
-    subtext:{
+  InterestCatagory: {
+    type: String,
+  },
 
-        type:String,
-        default:""
-    },
+  subcatagory: {
+    type: String,
+  },
 
-    timeStamp:{
+  Type: {
+    type: String,
+  },
 
-        type:String,
-        default:""
-    },
+  discussionId: {
+    type: String,
+  },
 
-    description:{
-        type:String,
-        default:""
-    },
+  status: {
+    type: String,
+  },
 
-    InterestCatagory:{
-        type:String,
-        default:""
-    },
+  winner: {
+    type: String,
+  },
 
-    Type:{
+  mediaType: {
+    type: String,
+  },
 
-        type:String,
-        default:""
-    },
+  filename: {
+    type: String,
+  },
 
-    discussionId:{
+  filepath: {
+    type: String,
+  },
+});
 
-        type:String,
-        default:""
-    },
-
-    status:{
-
-        type:String,
-        default:""
-    },
-
-    winner:{
-
-        type:String,
-        default:""
-    },
-
-    mediaImagePath:{
-        type:String,
-        default:""
-
-    },
-
-    mediaVideoPath:{
-
-        type:String,
-        default:""
-    }
-
-
-
-
-})
-
-
-const dashboardModel = mongoose.model("dashboardModel",dashboardSchema)
-module.exports = dashboardModel
+const dashboardModel = mongoose.model("dashboardModel", dashboardSchema);
+module.exports = dashboardModel;

@@ -11,6 +11,25 @@ const interestSchema = mongoose.Schema({
 
         type:Array,
         default:[]
+    },
+
+    adminName:{
+        type:String,
+        default:""
+    },
+
+    adminIp:{
+        type:String,
+        default:""
+    },
+    adminlocationCoordinates:{
+        type:String,
+        default:""
+    },
+
+    Added:{
+        type:String,
+        default:""
     }
 
 
