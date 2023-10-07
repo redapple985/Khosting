@@ -26,5 +26,27 @@ router.post(
   },
 );
 
+router.post(
+  "/getDashboardData",
+  authMiddleware,
+  postmediaUpload.single(""),
+  (req, res) => {
+    controllerobject.getDashboardDataByInterests(req, res);
+  },
+);
+
+router.post("/testdashboardData", authMiddleware, (req, res) => {
+  controllerobject.TestPost(req, res);
+});
+
+router.post(
+  "/addPostTest",
+  authMiddleware,
+  postmediaUpload.single(""),
+  (req, res) => {
+    controllerobject.TestPost(req, res);
+  },
+);
+
 module.exports = router;
 //

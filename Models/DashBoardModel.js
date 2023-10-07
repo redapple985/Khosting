@@ -28,8 +28,9 @@ const dashboardSchema = mongoose.Schema({
     type: String,
   },
 
-  InterestCatagory: {
-    type: String,
+  interestcatagory: {
+    type: Array,
+    default: [],
   },
 
   subcatagory: {
