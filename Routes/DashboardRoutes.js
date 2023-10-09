@@ -48,5 +48,18 @@ router.post(
   },
 );
 
+router.post(
+  "/getDashboardDataloadmore",
+  authMiddleware,
+  postmediaUpload.single(""),
+  (req, res) => {
+    controllerobject.getDashboardDataByInterestsOnLoadMore(req, res);
+  },
+);
+
+router.get("/getfile/:filepath/:filetype", authMiddleware, (req, res) => {
+  controllerobject.fetchFile(req, res);
+});
+
 module.exports = router;
 //
