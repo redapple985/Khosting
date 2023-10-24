@@ -50,6 +50,8 @@ class UserController {
             userReputationStatus,
           } = fields;
 
+          //extra
+
           console.log(
             "usedevice" +
               cryptLib.decryptCipherTextWithRandomIV(
@@ -279,7 +281,12 @@ class UserController {
         const addImagepathToDB = await usermodel
           .findByIdAndUpdate(
             { _id: userId },
-            { $set: { userPicturePath: imagePath, imageName: userName } },
+            {
+              $set: {
+                userPicturePath: imagePath,
+                imageName: userName,
+              },
+            },
             { new: true },
           )
           .then((result) => {
@@ -330,7 +337,7 @@ class UserController {
         { $push: { tokens: token } },
         { new: true },
       )
-      .then((result) => {
+      .then(async (result) => {
         console.log("Signin success");
 
         const encryptedUserkey = cryptLib.encryptPlainTextWithRandomIV(
@@ -342,6 +349,10 @@ class UserController {
           process.env.app_secrete,
         );
 
+        const getinterest = await interestModel.findOne({
+          userId: result._id,
+        });
+
         return res.status(200).json({
           msg: "Signin success",
           t: token,
@@ -351,6 +362,7 @@ class UserController {
           userEmail: result.userEmail,
           userId: encrypteduserId,
           userPaymentInfo: result.userPayment,
+          interestOption: getinterest.interests,
         });
       })
       .catch((error) => {
@@ -385,7 +397,12 @@ class UserController {
 
         const addImagepathToDB = usermodel.findByIdAndUpdate(
           { _id: userId },
-          { $set: { userPicturePath: imagePath, imageName: userName } },
+          {
+            $set: {
+              userPicturePath: imagePath,
+              imageName: userName,
+            },
+          },
           { new: true, strict: false },
           (err, doc) => {
             if (err) {
@@ -715,9 +732,11 @@ class UserController {
               //create interest Options Document
               if (r != null) {
                 console.log("data saved");
-                return res
-                  .status(200)
-                  .json({ msg: "InterestsOptions Saved", error: "false" });
+                return res.status(200).json({
+                  msg: "InterestsOptions Saved",
+                  error: "false",
+                  interestOptions: interestsOptions,
+                });
               } else {
                 console.log("Interest saving failure");
                 return res
@@ -760,6 +779,84 @@ class UserController {
       return res
         .status(200)
         .json({ msg: "Failed to insert Interests Options", error: "true" });
+    }
+  }
+
+  SigninTest(req, res) {
+    const form = new formidable.IncomingForm();
+
+    try {
+      form.parse(req, async (error, fields, files) => {
+        if (fields != null) {
+          const { userEmail, userPassword, paYment } = fields;
+
+          const decryptedEmail = await cryptLib.decryptCipherTextWithRandomIV(
+            userEmail,
+            process.env.app_secrete,
+          );
+          const decryptPassword = await cryptLib.decryptCipherTextWithRandomIV(
+            userPassword,
+            process.env.app_secrete,
+          );
+          const decryptPayment = await cryptLib.decryptCipherTextWithRandomIV(
+            paYment,
+            process.env.app_secrete,
+          );
+
+          console.log(decryptedEmail);
+          const isemailvalid = decryptedEmail.includes("@");
+          if (isemailvalid) {
+            const findUser = await usermodel.findOne({
+              userEmail: decryptedEmail,
+            });
+            console.log(isemailvalid);
+
+            if (!findUser) {
+              return res
+                .status(200)
+                .json({ msg: "User Not found", error: "true" });
+            } else {
+              console.log("else");
+
+              const userPasswordfromDb = findUser.userPassword;
+
+              var ispasswordcorrect = decryptPassword === userPasswordfromDb;
+              if (!ispasswordcorrect) {
+                console.log(userPassword);
+                console.log(findUser.userPassword);
+                return res
+                  .status(200)
+                  .json({ msg: "Authentication Error", error: "true" });
+              } else {
+                const decrypteduserPayment = findUser.userPayment;
+
+                if (decryptPayment === decrypteduserPayment) {
+                  console.log("matching payment" + findUser.userPayment);
+                  await this.UpdateSiginToken(
+                    findUser,
+                    decryptedEmail,
+                    req,
+                    res,
+                  );
+                } else {
+                  return res
+                    .status(200)
+                    .json({ msg: "Authentication Error", error: "true" });
+                }
+              }
+            }
+          }
+        } else {
+          return res
+            .status(400)
+            .json({ msg: "400 Bad request", error: "true" });
+        }
+      });
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({ msg: "500 Something went wrong", error: "true" });
     }
   }
 }
