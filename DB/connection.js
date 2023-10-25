@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const url = process.env.DEVMODE_LOCAL
 
 const enviromentTesturl = process.env.DEVMODE_REMOTE
-mongoose.connect(url,{
+mongoose.connect(enviromentTesturl,{
 
     useNewUrlParser : true,
     useUnifiedTopology:true,
